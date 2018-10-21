@@ -46,10 +46,12 @@ function testConnection(){
   var userAuth = getUserAuth();
   if(!userAuth){
     asksAuth();
+    return;
   }
   var userInfo = getUserInfo(userAuth);
   if(!userInfo){
     ui.alert('Connection Failed. Try to authenticate.');
+    return;
   }
   Logger.log(JSON.stringify(userInfo));
   ui.alert('User authenticated. Connection successful. Info:\nId: ' + userInfo.id + '\nName: ' + userInfo.name + '\nEmail: ' + userInfo.email);
@@ -57,7 +59,9 @@ function testConnection(){
 
 function resetSettings(){
   var appProperties = PropertiesService.getUserProperties();
+  Logger.log('Removing properties: ' + appProperties.getKeys());
   appProperties.deleteAllProperties();
+  resetSpreadsheet();
 }
 
 function about(){
