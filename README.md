@@ -1,2 +1,2 @@
-# joss
-Manage Jira issues on google sheets!
+# Jira on Spreadsheets (joss)
+Manage your Jira issues on google sheets!
