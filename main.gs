@@ -58,11 +58,16 @@ function testConnection(){
 }
 
 function resetSettings(){
-  var appProperties = PropertiesService.getUserProperties();
-  Logger.log('Removing properties: ' + appProperties.getKeys());
-  appProperties.deleteAllProperties();
-  resetSpreadsheet();
+  var result = ui.alert('Please confirm', 'Are you sure about this? All settings will be lost and \
+                         you will need to authenticate and import new settings again.', ui.ButtonSet.YES_NO);
+  if (result == ui.Button.YES) {
+    var appProperties = PropertiesService.getUserProperties();
+    Logger.log('Removing properties: ' + appProperties.getKeys());
+    appProperties.deleteAllProperties();
+    resetSpreadsheet();
+  }
 }
+
 
 function about(){
   // TODO
