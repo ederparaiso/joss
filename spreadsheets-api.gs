@@ -26,3 +26,20 @@ function setDefaultFieldsAttributes(sheetName, headers){
   var range = sheet.getRange(1, 1, lastRow, lastColumn);
   range.createFilter();
 }
+
+function readFieldsAttributes(sheetName){
+  var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadSheet.getSheetByName(sheetName);
+  var data = sheet.getDataRange().getValues();
+  data.shift();
+  fieldsAttributes = {};
+  data.forEach(function(fieldAttribute){
+    fieldsAttributes[fieldAttribute[0]] = {
+      'isArray': fieldAttribute[1],
+      'primitive': fieldAttribute[2],
+      'attribute': fieldAttribute[3],
+      'customEmptyValue': fieldAttribute[4]
+    };
+  });
+  return fieldsAttributes;
+}

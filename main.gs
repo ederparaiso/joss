@@ -38,13 +38,17 @@ function importProjectSettings(){
     storeIssueTypes(projectInfo.issueTypes);
     var issueStatuses = getProjectIssuesStatuses(userAuth, projectKey);
     storeIssueStatuses(issueStatuses);
+    // TODO how to merge issue fields
     setDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue']);
     ui.alert('Project settings successfully set. Info:\nKey: ' + projectInfo.id + '\nProject: ' + projectInfo.name);
   }
 }
 
 function importFieldSettings(){
-  // TODO
+  Logger.log(getFieldsAttributes());
+  var fieldsAttributes = readFieldsAttributes('Fields');
+  storeFieldsAttributes(fieldsAttributes);
+  Logger.log(getFieldsAttributes());
 }
 
 function searchIssues(){
