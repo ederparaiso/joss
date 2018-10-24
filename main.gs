@@ -5,9 +5,9 @@ function onOpen(){
   var entries = [];
   entries.push({ name : 'Authenticate', functionName : 'authUser' });
   entries.push(null);
-  entries.push({ name : 'Project Settings', functionName : 'importProjectSettings' });
+  entries.push({ name : 'Import Project Settings', functionName : 'importProjectSettings' });
   entries.push(null);
-  entries.push({ name : 'Field Settings', functionName : 'importFieldSettings' });
+  entries.push({ name : 'Import Field Settings', functionName : 'importFieldSettings' });
   entries.push(null);
   entries.push({ name : 'Search Issues', functionName : 'searchIssues' });
   entries.push(null);
@@ -27,7 +27,20 @@ function authUser(){
 }
 
 function importProjectSettings(){
-  // TODO
+  var result = ui.prompt('Set or update your project settings', 'Enter your project code (key):', ui.ButtonSet.OK);
+  var projectKey = result.getResponseText();
+  if(projectKey){
+    storeProjectKey(projectKey);
+    var userAuth = getUserAuth();
+    var assignableUsers = getAssignableProjectUsers(userAuth, projectKey);
+    storeProjectUsers(assignableUsers);
+    var projectInfo = getProjectInfo(userAuth, projectKey);
+    storeIssueTypes(projectInfo.issueTypes);
+    var issueStatuses = getProjectIssuesStatuses(userAuth, projectKey);
+    storeIssueStatuses(issueStatuses);
+    setDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue']);
+    ui.alert('Project settings successfully set. Info:\nKey: ' + projectInfo.id + '\nProject: ' + projectInfo.name);
+  }
 }
 
 function importFieldSettings(){
@@ -67,7 +80,6 @@ function resetSettings(){
     resetSpreadsheet();
   }
 }
-
 
 function about(){
   // TODO
