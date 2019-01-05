@@ -19,7 +19,8 @@ function writeDefaultFieldsAttributes(sheetName, headers){
   sheet.appendRow(headers);
   for(var attribute in defaultFieldsAttributes){
     sheet.appendRow([attribute, defaultFieldsAttributes[attribute].isArray, defaultFieldsAttributes[attribute].primitive, 
-                     defaultFieldsAttributes[attribute].attribute, defaultFieldsAttributes[attribute].customEmptyValue]);
+                     defaultFieldsAttributes[attribute].attribute, defaultFieldsAttributes[attribute].customEmptyValue,
+                     defaultFieldsAttributes[attribute].updatable]);
   }
   var lastRow = sheet.getLastRow();
   var lastColumn = sheet.getLastColumn();
@@ -38,7 +39,8 @@ function readFieldsSheetAttributes(sheetName){
       'isArray': fieldAttribute[1],
       'primitive': fieldAttribute[2],
       'attribute': fieldAttribute[3],
-      'customEmptyValue': fieldAttribute[4]
+      'customEmptyValue': fieldAttribute[4],
+      'updatable': fieldAttribute[5]
     };
   });
   return fieldsAttributes;

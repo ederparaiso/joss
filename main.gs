@@ -43,7 +43,7 @@ function importProjectSettings(){
     storeIssueStatuses(issueStatuses);
     // TODO how to merge issue fields to show how fields are available
     // var issueFields = getProjectIssuesFields(userAuth, projectKey);
-    writeDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue']);
+    writeDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue', 'updatable']);
     ui.alert('Project settings successfully set. Info:\nKey: ' + projectInfo.id + '\nProject: ' + projectInfo.name);
   }
 }
@@ -100,9 +100,7 @@ function syncIssues(){
         issueData[fieldName] = issuesData[i][index];
         return issueData;
       }, {});
-      // TODO FIXME
-      delete issueData.key;
-      delete issueData.status;
+      removeReadOnlyFields(issueData);
       Logger.log(issueData);
       var result = updateIssue(userAuth, issueKey, issueData)
       if(!result){
@@ -111,11 +109,20 @@ function syncIssues(){
       }
     }
     else{
-      return;
+      //return;
       //createIssueFromSheet();
     }
   }
     
+}
+
+function removeReadOnlyFields(issueData){
+  var fieldsAttributes = getFieldsAttributes();
+  for(var fieldName in fieldsAttributes){
+    if(fieldsAttributes[fieldName].updatable === false){
+      delete issueData[fieldName];
+    }
+  }
 }
 
 function testConnection(){
@@ -134,7 +141,7 @@ function testConnection(){
 }
 
 function resetFieldSettings(){
-  writeDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue']);
+  writeDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue', 'updatable']);
 }
 
 function resetSettings(){

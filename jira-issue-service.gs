@@ -120,7 +120,7 @@ function processCreateIssue(responseData){
 function updateIssue(authorization, issueKey, issueData){
   var url = 'issue/' + issueKey;
   var payload = buildUpdateIssuePayload(issueData);
-  Logger.log(payload);
+  Logger.log('updateIssue payload: ' + JSON.stringify(issueData));
   var response = doRequest('put', url, authorization, null, payload);
   Logger.log('updateIssue response status: ' + response.getResponseCode());
   if(response.getResponseCode() != 204){
@@ -137,7 +137,9 @@ function buildUpdateIssuePayload(issueData){
       issueFields[fieldName] = setIssueFieldValue(fieldName, issueData[fieldName]);
     }
     else{
-      issueFields[fieldName] = setIssueFieldValueEmpty(fieldName, issueData[fieldName]);
+      if(fieldName != 'parent'){ // 'parent' field should not be sent if null, its not allowed by jira api
+        issueFields[fieldName] = setIssueFieldValueEmpty(fieldName, issueData[fieldName]);
+      }
     }
   }
   payload['fields'] = issueFields;
