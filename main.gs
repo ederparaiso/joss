@@ -15,6 +15,8 @@ function onOpen(){
   entries.push(null);
   entries.push({ name : 'Test Connection', functionName : 'testConnection' });
   entries.push(null);
+  entries.push({ name : 'Reset Field Settings', functionName : 'resetFieldSettings' });
+  entries.push(null);
   entries.push({ name : 'Reset Settings', functionName : 'resetSettings' });
   entries.push(null);
   entries.push({ name : 'About', functionName : 'about' });
@@ -37,26 +39,83 @@ function importProjectSettings(){
     var projectInfo = getProjectInfo(userAuth, projectKey);
     storeIssueTypes(projectInfo.issueTypes);
     var issueStatuses = getProjectIssuesStatuses(userAuth, projectKey);
+    Logger.log(JSON.stringify(issueStatuses));
     storeIssueStatuses(issueStatuses);
-    // TODO how to merge issue fields
-    setDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue']);
+    // TODO how to merge issue fields to show how fields are available
+    // var issueFields = getProjectIssuesFields(userAuth, projectKey);
+    writeDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue']);
     ui.alert('Project settings successfully set. Info:\nKey: ' + projectInfo.id + '\nProject: ' + projectInfo.name);
   }
 }
 
 function importFieldSettings(){
-  Logger.log(getFieldsAttributes());
-  var fieldsAttributes = readFieldsAttributes('Fields');
+  var fieldsAttributes = readFieldsSheetAttributes('Fields');
   storeFieldsAttributes(fieldsAttributes);
-  Logger.log(getFieldsAttributes());
 }
 
 function searchIssues(){
-  // TODO
+  var result = ui.prompt('Search Issues', 'Enter your search query in jql (JIRA Query Language) format:', ui.ButtonSet.OK);
+  var searchQuery = result.getResponseText();
+  if(searchQuery){
+    var userAuth = getUserAuth();
+    var projectKey = getProjectKey();
+    var fieldsAttributes = getFieldsAttributes();
+    var fields = [];
+    for(var field in fieldsAttributes){
+      fields.push(field);
+    }
+    var issues = [];
+    var issuesResult = findIssues(userAuth, projectKey, searchQuery, fields, 0);
+    if(!issuesResult || issuesResult.total == 0){
+      ui.alert('No issues matches found.');
+      return;
+    }
+    Array.prototype.push.apply(issues, issuesResult.issues);
+    var pages = Math.ceil(issuesResult.total/defaultMaxResults);
+    for(var pageNumber = 2; pageNumber <= pages; pageNumber++){
+      var startIndex = (pageNumber-1) * defaultMaxResults;
+      var pageResult = findIssues(userAuth, projectKey, searchQuery, fields, startIndex);
+      Array.prototype.push.apply(issues, pageResult.issues);
+    }
+    Logger.log('Found ' + issues.length + ' issues');
+    writeIssues('Issues', issues);
+  }
 }
 
 function syncIssues(){
-  // TODO
+  var userAuth = getUserAuth();
+  var projectKey = getProjectKey();
+  var issuesData = readIssuesSheetAttributes('Issues');
+  var fieldNames = issuesData.shift();
+  var amountOfFields = fieldNames.length;
+  var keyFieldPos = fieldNames.indexOf('key');
+  if(keyFieldPos === -1){
+    ui.alert('key field is required to sync issues.');
+    return;
+  }
+  for(var i = 0; i < issuesData.length; i++){
+    var issueKey = issuesData[i][keyFieldPos];
+    if(issueKey){
+      var issueData = fieldNames.reduce(function(issueData, fieldName, index){
+        issueData[fieldName] = issuesData[i][index];
+        return issueData;
+      }, {});
+      // TODO FIXME
+      delete issueData.key;
+      delete issueData.status;
+      Logger.log(issueData);
+      var result = updateIssue(userAuth, issueKey, issueData)
+      if(!result){
+        ui.alert('There was an error on issue update. row ' + 2);
+        return;
+      }
+    }
+    else{
+      return;
+      //createIssueFromSheet();
+    }
+  }
+    
 }
 
 function testConnection(){
@@ -72,6 +131,10 @@ function testConnection(){
   }
   Logger.log(JSON.stringify(userInfo));
   ui.alert('User authenticated. Connection successful. Info:\nId: ' + userInfo.id + '\nName: ' + userInfo.name + '\nEmail: ' + userInfo.email);
+}
+
+function resetFieldSettings(){
+  writeDefaultFieldsAttributes('Fields', ['field', 'isArray', 'primitive', 'attribute', 'customEmptyValue']);
 }
 
 function resetSettings(){

@@ -63,3 +63,48 @@ function getIssueStatuses(issueType){
     return status.name;
   });
 }
+
+function getProjectIssuesFields(authorization, projectKey){
+  var queryString = 'projectKeys=' + projectKey + '&expand=projects.issuetypes.fields';
+  var response = doRequest('get', 'issue/createmeta', authorization, queryString, null);
+  Logger.log('getProjectIssuesFields response status: ' + response.getResponseCode());
+  if(response.getResponseCode() != 200){
+    return null;
+  }
+  var responseData = getResponseAsJson(response);
+  return processGetProjectIssuesFields(responseData);
+}
+
+function processGetProjectIssuesFields(responseData){
+  return responseData.projects[0].issuetypes.reduce(function(issues, issueType){
+    issues[issueType.name] = getIssueFields(issueType.fields);
+    return issues;
+  }, {});
+}
+
+function getIssueFields(issueFields){
+  var fields = {};
+  for(var fieldName in issueFields){
+    fields[fieldName] = getFieldAttributes(issueFields[fieldName])
+  }
+  return fields;
+}
+
+function getFieldAttributes(fieldAttributes){
+  // 'name': fieldAttributes.name,
+  // 'isArray': fieldAttributes.schema.type === 'array',
+  // 'type': fieldAttributes.schema.items || fieldAttributes.schema.type,
+  // 'operations': fieldAttributes.operations
+  return {
+    'allowedValues': getFieldAllowedValues(fieldAttributes.allowedValues),
+  };  
+}
+
+function getFieldAllowedValues(allowedFieldValues){
+  if(!allowedFieldValues){
+    return null;
+  }
+  return allowedFieldValues.map(function(allowedValue){
+    return allowedValue.name || allowedValue.value;
+  });
+}
