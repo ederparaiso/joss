@@ -14,7 +14,7 @@ Future versions intent to use [clasp](https://github.com/google/clasp) to deploy
 At this moment, some issue fields are partially supported and some fields are unsupported.
 
 **Partially supported**
-- timeTracking: just orignalEstimate sub field
+- timeTracking: just orignalEstimate sub field. It is planned to support remainingEstimate.
 
 **Not supported**
 - attachment
@@ -44,7 +44,7 @@ At this moment, some issue fields are partially supported and some fields are un
 
 **jira cloud users that login with integrated google account must be able to login with email/password on jira page. If you are not able, go to jira login page and ask recovery link to your account and set proper password. It will create a jira "OnDemand password" which can be used to authenticate and consume jira services. 
 
-***`key` and `parent` issue fields must be present. Only main default jira fields are available in this version. 
+***`key` and `parent` issue fields must be present. Only main default jira fields are available in this version. `timetracking` field is the `originalEstimate` subfield. `remainingEstimate` currently not supported.
 
 ****multivalued fields should be set comma separated in sheet cells, e.g. value1,value2. Look at `Fields` sheet to see which fields are multivalued on `isArray` column. 
 

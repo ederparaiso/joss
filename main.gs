@@ -206,7 +206,8 @@ function about(){
            **jira cloud users that login with integrated google account must be able to login with email/password on jira page. \
            If you are not able, go to jira login page and ask recovery link to your account and set proper password. It will \
            create a jira "OnDemand password" which can be used to authenticate and consume jira services.\n \
-           ***\'key\' and \'parent\' issue fields must be present. Only main default jira fields are available in this version.\n \
+           ***\'key\' and \'parent\' issue fields must be present. Only main default jira fields are available in this version. \
+           \'timetracking\' field is \'originalEstimate\' subfield. \'remainingEstimate\' currently not supported.\n \
            ****multivalued fields should be set comma separated in sheet cells, e.g. value1,value2. \
            Look at \'Fields\' sheet to see which fields are multivalued on \'isArray\' column.\n \
            *****If issue is a \'sub task\' type, parent must be provided. If parent exists, set its key. Otherwise set row number of parent. \
