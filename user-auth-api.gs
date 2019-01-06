@@ -21,14 +21,14 @@ function storeUserAuth(userAuth){
   userProperties.setProperty('USER_AUTHORIZATION', userAuth);
 }
 
-function storeJiraUrl(jiraUrl){
-  var userProperties = PropertiesService.getUserProperties();
-  userProperties.setProperty('JIRA_URL', jiraUrl);
-}
-
 function getUserAuth(){
   var userProperties = PropertiesService.getUserProperties();
   return userProperties.getProperty('USER_AUTHORIZATION');
+}
+
+function storeJiraUrl(jiraUrl){
+  var userProperties = PropertiesService.getUserProperties();
+  userProperties.setProperty('JIRA_URL', jiraUrl);
 }
 
 function getJiraUrl(){

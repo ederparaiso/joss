@@ -53,12 +53,12 @@ function getProjectIssuesStatuses(authorization, projectKey){
 
 function processGetProjectIssuesStatuses(responseData){
   return responseData.reduce(function(issues, issueType){
-    issues[issueType.name] = getIssueStatuses(issueType);
+    issues[issueType.name] = processIssueStatuses(issueType);
     return issues;
   }, {});
 }
 
-function getIssueStatuses(issueType){
+function processIssueStatuses(issueType){
   return issueType.statuses.map(function(status){
     return status.name;
   });
@@ -77,30 +77,26 @@ function getProjectIssuesFields(authorization, projectKey){
 
 function processGetProjectIssuesFields(responseData){
   return responseData.projects[0].issuetypes.reduce(function(issues, issueType){
-    issues[issueType.name] = getIssueFields(issueType.fields);
+    issues[issueType.name] = processIssueFields(issueType.fields);
     return issues;
   }, {});
 }
 
-function getIssueFields(issueFields){
+function processIssueFields(issueFields){
   var fields = {};
   for(var fieldName in issueFields){
-    fields[fieldName] = getFieldAttributes(issueFields[fieldName])
+    fields[fieldName] = processFieldAttributes(issueFields[fieldName])
   }
   return fields;
 }
 
-function getFieldAttributes(fieldAttributes){
-  // 'name': fieldAttributes.name,
-  // 'isArray': fieldAttributes.schema.type === 'array',
-  // 'type': fieldAttributes.schema.items || fieldAttributes.schema.type,
-  // 'operations': fieldAttributes.operations
+function processFieldAttributes(fieldAttributes){
   return {
-    'allowedValues': getFieldAllowedValues(fieldAttributes.allowedValues),
+    'allowedValues': processFieldAllowedValues(fieldAttributes.allowedValues),
   };  
 }
 
-function getFieldAllowedValues(allowedFieldValues){
+function processFieldAllowedValues(allowedFieldValues){
   if(!allowedFieldValues){
     return null;
   }
