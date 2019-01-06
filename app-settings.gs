@@ -1,8 +1,3 @@
-//TODO mudar para configurar somente quais dos default fields serão usados, sem sobrescrever os atributos
-//le da planilha e pega o atributo pelo nome (ex: quer só key e summary custom = {}; custom.key = defaultFieldsAttributes.key
-
-//TODO limpar coisas desnecessarias
-//import project settings só importa o nome do projeto, remover o clean project settings
 var defaultFieldsAttributes = {
   'key': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': false},
   'parent': {'isArray': false, 'primitive': false, 'attribute': 'key', 'customEmptyValue': false, 'updatable': false},
@@ -19,12 +14,26 @@ var defaultFieldsAttributes = {
   'duedate': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': true},
   'resolution': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': false},
   'status': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': false},
-  'timetracking': {'isArray': false, 'primitive': false, 'attribute': 'remainingEstimate', 'customEmptyValue': true, 'updatable': true}, // TODO
   'timetracking': {'isArray': false, 'primitive': false, 'attribute': 'originalEstimate', 'customEmptyValue': true, 'updatable': true}
 };
 
-function storeFieldsAttributes(fieldsAttributes){
+function resetProperties(){
+  var appProperties = PropertiesService.getUserProperties();
+  Logger.log('removing properties: ' + appProperties.getKeys());
+  appProperties.deleteAllProperties();
+}
+
+function storeDefaultFieldsAttributes(){
   var fieldsProperties = PropertiesService.getUserProperties();
+  fieldsProperties.setProperty('ISSUES_FIELDS_ATTRIBUTES', JSON.stringify(defaultFieldsAttributes));
+}
+
+function storeFieldsAttributes(attributes){
+  var fieldsProperties = PropertiesService.getUserProperties();
+  var fieldsAttributes = {};
+  attributes.forEach(function(attribute){
+    fieldsAttributes[attribute] = defaultFieldsAttributes[attribute];
+  });
   fieldsProperties.setProperty('ISSUES_FIELDS_ATTRIBUTES', JSON.stringify(fieldsAttributes));
 }
 
@@ -72,8 +81,7 @@ function storeIssueStatuses(issueStatuses){
   userProperties.setProperty('ISSUE_STATUSES', JSON.stringify(issueStatuses));
 }
 
-//TODO rename all getxyz to readxyz
-function readIssueStatuses(){
+function getIssueStatuses(){
   var userProperties = PropertiesService.getUserProperties();
   return JSON.parse(userProperties.getProperty('ISSUE_STATUSES'));
 }

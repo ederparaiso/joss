@@ -9,18 +9,19 @@ function findIssues(authorization, projectKey, jql, fields, startIndex){
     "fields": fields,
     "fieldsByKeys": false
   };
+  Logger.log('findIssues payload: ' + JSON.stringify(payload));
   var response = doRequest('post', 'search', authorization, null, payload);
-  Logger.log('searchIssues response status: ' + response.getResponseCode());
+  Logger.log('findIssues response status: ' + response.getResponseCode());
   if(response.getResponseCode() != 200){
     return null;
   }
   var responseData = getResponseAsJson(response);
-  return processSearchIssues(responseData);
+  return processFindIssues(responseData);
 }
 
-function processSearchIssues(responseData){
+function processFindIssues(responseData){
   var issues = responseData.issues.map(function(issue){
-    var issueData = buildIssueData(issue.fields);
+    var issueData = processIssueData(issue.fields);
     issueData['key'] = issue.key;
     return issueData;
   });
@@ -30,15 +31,15 @@ function processSearchIssues(responseData){
   };
 }
 
-function buildIssueData(issueFields){
+function processIssueData(issueFields){
   var fields = {};
   for(var fieldName in issueFields){
-    fields[fieldName] = getIssueFieldValue(fieldName, issueFields[fieldName]);
+    fields[fieldName] = processIssueFieldValue(fieldName, issueFields[fieldName]);
   }
   return fields;
 }
 
-function getIssueFieldValue(fieldName, fieldData){
+function processIssueFieldValue(fieldName, fieldData){
   if(!fieldData){
     return '';
   }
@@ -77,13 +78,13 @@ function buildCreateIssuePayload(issueData){
   var payload = {};
   var issueFields = {};
   for(var fieldName in issueData){
-    issueFields[fieldName] = setIssueFieldValue(fieldName, issueData[fieldName]);
+    issueFields[fieldName] = buildIssueFieldValue(fieldName, issueData[fieldName]);
   }
   payload['fields'] = issueFields;
   return payload;
 }
 
-function setIssueFieldValue(fieldName, fieldValue){
+function buildIssueFieldValue(fieldName, fieldValue){
   var fieldAttributesConfig = getFieldsAttributes();
   var config = fieldAttributesConfig[fieldName];
   var result = {};
@@ -135,11 +136,11 @@ function buildUpdateIssuePayload(issueData){
   var issueFields = {};
   for(var fieldName in issueData){
     if(issueData[fieldName]){
-      issueFields[fieldName] = setIssueFieldValue(fieldName, issueData[fieldName]);
+      issueFields[fieldName] = buildIssueFieldValue(fieldName, issueData[fieldName]);
     }
     else{
       if(fieldName != 'parent'){ // 'parent' field should not be sent if null, its not allowed by jira api
-        issueFields[fieldName] = setIssueFieldValueEmpty(fieldName, issueData[fieldName]);
+        issueFields[fieldName] = buildIssueFieldValueEmpty(fieldName, issueData[fieldName]);
       }
     }
   }
@@ -147,7 +148,7 @@ function buildUpdateIssuePayload(issueData){
   return payload;
 }
 
-function setIssueFieldValueEmpty(fieldName, fieldValue){
+function buildIssueFieldValueEmpty(fieldName, fieldValue){
   var fieldAttributesConfig = getFieldsAttributes();
   var config = fieldAttributesConfig[fieldName];
   if(!config){

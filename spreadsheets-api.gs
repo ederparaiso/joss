@@ -1,26 +1,51 @@
+function readCell(sheetName, row, col){
+  var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadSheet.getSheetByName(sheetName);
+  var cell = sheet.getRange(row, col);
+  return cell.getValue();
+}
+
+function writeCell(sheetName, value, row, col){
+  var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadSheet.getSheetByName(sheetName);
+  var cell = sheet.getRange(row, col);
+  cell.setValue(value);
+}
+
 function resetSpreadsheet() {
   var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   spreadSheet.insertSheet(0);
   var sheets = spreadSheet.getSheets();
   sheets.shift();
   sheets.forEach(function(sheet){
-    Logger.log('deleting ' + sheet.getName());
+    Logger.log('deleting sheet: ' + sheet.getName());
     spreadSheet.deleteSheet(sheet);
   });
   spreadSheet.renameActiveSheet('Issues');
   spreadSheet.insertSheet('Fields');
 }
 
-function writeDefaultFieldsAttributes(sheetName, headers){
+function readAttributesFromFieldsSheet(sheetName){
+  var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadSheet.getSheetByName(sheetName);
+  var data = sheet.getDataRange().getValues();
+  data.shift();
+  return data.map(function(fieldAttribute){
+    return fieldAttribute[0];
+  });
+}
+
+function writeDefaultAttributesOnFieldsSheet(sheetName, headers){
   var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = spreadSheet.getSheetByName(sheetName);
   sheet.clear();
-  sheet.getFilter().remove();
+  var filter = sheet.getFilter();
+  if(filter){
+    filter.remove();
+  }
   sheet.appendRow(headers);
   for(var attribute in defaultFieldsAttributes){
-    sheet.appendRow([attribute, defaultFieldsAttributes[attribute].isArray, defaultFieldsAttributes[attribute].primitive, 
-                     defaultFieldsAttributes[attribute].attribute, defaultFieldsAttributes[attribute].customEmptyValue,
-                     defaultFieldsAttributes[attribute].updatable]);
+    sheet.appendRow([attribute, defaultFieldsAttributes[attribute].isArray, defaultFieldsAttributes[attribute].updatable]);
   }
   var lastRow = sheet.getLastRow();
   var lastColumn = sheet.getLastColumn();
@@ -28,33 +53,24 @@ function writeDefaultFieldsAttributes(sheetName, headers){
   range.createFilter();
 }
 
-function readFieldsSheetAttributes(sheetName){
+function readItensFromIssuesSheet(sheetName){
   var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = spreadSheet.getSheetByName(sheetName);
   var data = sheet.getDataRange().getValues();
-  data.shift();
-  fieldsAttributes = {};
-  data.forEach(function(fieldAttribute){
-    fieldsAttributes[fieldAttribute[0]] = {
-      'isArray': fieldAttribute[1],
-      'primitive': fieldAttribute[2],
-      'attribute': fieldAttribute[3],
-      'customEmptyValue': fieldAttribute[4],
-      'updatable': fieldAttribute[5]
-    };
-  });
-  return fieldsAttributes;
+  return data;
 }
 
-function writeIssues(sheetName, issues){
+function writeItensOnIssuesSheet(sheetName, issues){
   var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
-  //TODO validates sheet not found
   var sheet = spreadSheet.getSheetByName(sheetName);
   if(!sheet){
     return;
   }
   sheet.clear();
-  sheet.getFilter().remove();
+  var filter = sheet.getFilter();
+  if(filter){
+    filter.remove();
+  }
   var fieldsAttributes = getFieldsAttributes();
   var headers = [];
   for(var issueField in fieldsAttributes){
@@ -80,40 +96,17 @@ function extractIssueFields(issue, fields, fieldsAttributes){
   });
 }
 
-function readIssuesSheetAttributes(sheetName){
-  var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = spreadSheet.getSheetByName(sheetName);
-  var data = sheet.getDataRange().getValues();
-  return data;
-  /*fieldsAttributes = {};
-  data.forEach(function(fieldAttribute){
-    fieldsAttributes[fieldAttribute[0]] = {
-      'isArray': fieldAttribute[1],
-      'primitive': fieldAttribute[2],
-      'attribute': fieldAttribute[3],
-      'customEmptyValue': fieldAttribute[4]
-    };
-  });
-  return fieldsAttributes;
-  */
-}
-
-function writeCell(sheetName, issueKey, row, col){
+function setValidationOnCell(sheetName, row, col, values){
   var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = spreadSheet.getSheetByName(sheetName);
   var cell = sheet.getRange(row, col);
-  cell.setValue(issueKey);
+  var rule = SpreadsheetApp.newDataValidation().requireValueInList(values).build();
+  cell.setDataValidation(rule);
 }
 
-function readCell(sheetName, row, col){
+function removeDataValidationOnCell(sheetName, row, col){
   var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = spreadSheet.getSheetByName(sheetName);
   var cell = sheet.getRange(row, col);
-  return cell.getValue();
+  cell.clearDataValidations();
 }
-  
-  
-  
-  
-  
-  
