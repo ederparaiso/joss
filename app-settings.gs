@@ -1,8 +1,4 @@
-//TODO mudar para configurar somente quais dos default fields serão usados, sem sobrescrever os atributos
-//le da planilha e pega o atributo pelo nome (ex: quer só key e summary custom = {}; custom.key = defaultFieldsAttributes.key
-
-//TODO limpar coisas desnecessarias
-//import project settings só importa o nome do projeto, remover o clean project settings
+//TODO cleanup and refactoring
 var defaultFieldsAttributes = {
   'key': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': false},
   'parent': {'isArray': false, 'primitive': false, 'attribute': 'key', 'customEmptyValue': false, 'updatable': false},
