@@ -20,6 +20,8 @@ function onOpen(){
   entries.push({ name : 'Reset Settings', functionName : 'resetSettings' });
   entries.push(null);
   entries.push({ name : 'About', functionName : 'about' });
+  entries.push(null);
+  entries.push({ name : 'Import Settings', functionName : 'importSettings' });
   sheet.addMenu('Jira 2.0', entries);
 };
 
@@ -94,35 +96,75 @@ function syncIssues(){
     return;
   }
   for(var i = 0; i < issuesData.length; i++){
+    var sheetCellRow = i + 2;
     var issueKey = issuesData[i][keyFieldPos];
     if(issueKey){
       var issueData = fieldNames.reduce(function(issueData, fieldName, index){
         issueData[fieldName] = issuesData[i][index];
         return issueData;
       }, {});
-      removeReadOnlyFields(issueData);
+      removeFieldsBeforeUpdate(issueData);
       Logger.log(issueData);
       var result = updateIssue(userAuth, issueKey, issueData)
       if(!result){
-        ui.alert('There was an error on issue update. row ' + 2);
+        ui.alert('There was an error on issue update. row ' + sheetCellRow);
         return;
       }
     }
     else{
-      //return;
-      //createIssueFromSheet();
+      var issueData = fieldNames.reduce(function(issueData, fieldName, index){
+        if(issuesData[i][index]){
+          issueData[fieldName] = issuesData[i][index];
+        }
+        return issueData;
+      }, {});
+      removeReadOnlyFieldsBeforeCreate(issueData);
+      if(!issueData.project){
+        issueData.project = projectKey;
+      }
+      if(issueData.parent){
+        if(parseInt(issueData.parent)){
+          issueData.parent = readCell('Issues', parseInt(issueData.parent), keyFieldPos + 1)
+          writeCell('Issues', issueData.parent, sheetCellRow, fieldNames.indexOf('parent')+1)
+        }
+      }
+      else{
+        delete issueData.parent;
+      }
+      Logger.log(issueData);
+      var result = createIssue(userAuth, issueData)
+      if(!result){
+        ui.alert('There was an error on issue creation. row ' + sheetCellRow);
+        return;
+      }
+      var sheetCellCol = keyFieldPos + 1;
+      writeCell('Issues', result, sheetCellRow, sheetCellCol)
     }
   }
-    
 }
 
-function removeReadOnlyFields(issueData){
+function removeFieldsBeforeUpdate(issueData){
   var fieldsAttributes = getFieldsAttributes();
+  // remove readonly fields
   for(var fieldName in fieldsAttributes){
     if(fieldsAttributes[fieldName].updatable === false){
       delete issueData[fieldName];
     }
   }
+  // remove not null fields
+  if(!issueData.priority){
+    delete issueData.priority;
+  }
+  if(!issueData.reporter){
+    delete issueData.reporter;
+  }
+}
+
+function removeReadOnlyFieldsBeforeCreate(issueData){
+  delete issueData.key;
+  delete issueData.resolution;
+  delete issueData.status;
+      
 }
 
 function testConnection(){
@@ -157,6 +199,16 @@ function resetSettings(){
 
 function about(){
   // TODO
+}
+
+function importSettings(){
+  var fieldsAttributes = readFieldsSheetAttributes('Fields');
+  storeFieldsAttributes(fieldsAttributes);
+  var result = ui.prompt('Set or update your project settings', 'Enter your project code (key):', ui.ButtonSet.OK);
+  var projectKey = result.getResponseText();
+  if(projectKey){
+    storeProjectKey(projectKey);
+  }
 }
 
 function asksAuth(){

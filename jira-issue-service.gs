@@ -63,6 +63,7 @@ function getIssueFieldValue(fieldName, fieldData){
 
 function createIssue(authorization, issueData){
   var payload = buildCreateIssuePayload(issueData);
+  Logger.log('createIssue payload: ' + JSON.stringify(payload));
   var response = doRequest('post', 'issue', authorization, null, payload);
   Logger.log('createIssue response status: ' + response.getResponseCode());
   if(response.getResponseCode() != 201){
@@ -120,7 +121,7 @@ function processCreateIssue(responseData){
 function updateIssue(authorization, issueKey, issueData){
   var url = 'issue/' + issueKey;
   var payload = buildUpdateIssuePayload(issueData);
-  Logger.log('updateIssue payload: ' + JSON.stringify(issueData));
+  Logger.log('updateIssue payload: ' + JSON.stringify(payload));
   var response = doRequest('put', url, authorization, null, payload);
   Logger.log('updateIssue response status: ' + response.getResponseCode());
   if(response.getResponseCode() != 204){

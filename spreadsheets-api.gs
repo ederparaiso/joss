@@ -98,13 +98,19 @@ function readIssuesSheetAttributes(sheetName){
   */
 }
 
-function writeIssueKey(sheetName, issueKey, row, col){
+function writeCell(sheetName, issueKey, row, col){
   var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = spreadSheet.getSheetByName(sheetName);
   var cell = sheet.getRange(row, col);
   cell.setValue(issueKey);
 }
 
+function readCell(sheetName, row, col){
+  var spreadSheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadSheet.getSheetByName(sheetName);
+  var cell = sheet.getRange(row, col);
+  return cell.getValue();
+}
   
   
   
