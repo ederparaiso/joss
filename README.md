@@ -1,6 +1,6 @@
 # Jira on Spreadsheets (joss)
 ## (Work in progress)
-Not Joss Stone or Joss Whedon neither, just a simple scripts to manage your jira issues on google spreadsheets!
+Just a simple scripts to manage your jira issues on google spreadsheets!
 
 Create and update Jira issues is an awful work as the number of issues grows.
 

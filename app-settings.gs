@@ -1,22 +1,22 @@
+//TODO cleanup and refactoring
 var defaultFieldsAttributes = {
-  'parent': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'project': {'isArray': false, 'primitive': false, 'attribute': 'key', 'customEmptyValue': false},
-  'issuetype': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'summary': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false},
-  'description': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false},
-  'priority': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'labels': {'isArray': true, 'primitive': true, 'attribute': '', 'customEmptyValue': false},
-  'components': {'isArray': true, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'fixVersions': {'isArray': true, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'reporter': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'assignee': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'duedate': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false},
-  'customfield_10007': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false},
-  'customfield_13617': {'isArray': false, 'primitive': false, 'attribute': 'value', 'customEmptyValue': false},
-  'customfield_11120': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false},
-  'timetracking': {'isArray': false, 'primitive': false, 'attribute': 'originalEstimate', 'customEmptyValue': true},
-  'resolution': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false},
-  'status': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false}
+  'key': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': false},
+  'parent': {'isArray': false, 'primitive': false, 'attribute': 'key', 'customEmptyValue': false, 'updatable': false},
+  'project': {'isArray': false, 'primitive': false, 'attribute': 'key', 'customEmptyValue': false, 'updatable': false},
+  'issuetype': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': true},
+  'summary': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': true},
+  'description': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': true},
+  'priority': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': true},
+  'labels': {'isArray': true, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': true},
+  'components': {'isArray': true, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': true},
+  'fixVersions': {'isArray': true, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': true},
+  'reporter': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': true},
+  'assignee': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': true},
+  'duedate': {'isArray': false, 'primitive': true, 'attribute': '', 'customEmptyValue': false, 'updatable': true},
+  'resolution': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': false},
+  'status': {'isArray': false, 'primitive': false, 'attribute': 'name', 'customEmptyValue': false, 'updatable': false},
+  'timetracking': {'isArray': false, 'primitive': false, 'attribute': 'remainingEstimate', 'customEmptyValue': true, 'updatable': true}, // TODO
+  'timetracking': {'isArray': false, 'primitive': false, 'attribute': 'originalEstimate', 'customEmptyValue': true, 'updatable': true}
 };
 
 function storeFieldsAttributes(fieldsAttributes){
@@ -68,7 +68,8 @@ function storeIssueStatuses(issueStatuses){
   userProperties.setProperty('ISSUE_STATUSES', JSON.stringify(issueStatuses));
 }
 
-function getIssueStatuses(){
+//TODO rename all getxyz to readxyz
+function readIssueStatuses(){
   var userProperties = PropertiesService.getUserProperties();
   return JSON.parse(userProperties.getProperty('ISSUE_STATUSES'));
 }
